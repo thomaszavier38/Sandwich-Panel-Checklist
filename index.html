@@ -340,6 +340,7 @@ select{text-transform:none}
       <label class="f">Core thickness<select data-k="coreThickness" id="coreThickness"><option value="">Select thickness…</option><option>50 mm</option><option>75 mm</option><option>100 mm</option><option>120 mm</option><option>125 mm</option><option>150 mm</option><option>175 mm</option><option>200 mm</option><option>220 mm</option><option>240 mm</option></select></label>
       <label class="f">Main contractor<input type="text" data-k="contractor" id="contractor"></label>
       <label class="f">Location / elevation<select data-k="location" id="location"><option value="">Select elevation…</option><option>North</option><option>South</option><option>East</option><option>West</option></select></label>
+      <label class="f">Floor / level<select data-k="floor" id="floor"><option value="">Select floor…</option><option>Ground Floor</option><option>First Floor</option><option>Second Floor</option><option>Third Floor</option><option>Fourth Floor</option><option>Rooftop</option></select></label>
       <label class="f">Installer<input type="text" data-k="installer" id="installer"></label>
       <label class="f">Gridline<input type="text" data-k="gridline" id="gridline"></label>
     </div>
@@ -534,7 +535,7 @@ var SECTIONS=[
  ['Work area cleaned, protected from debris and excess sealant removed without damaging finishes.','Protection was maintained as required and no visible panel was damaged.']]}
 ];
 var ITEMS=[];SECTIONS.forEach(function(s){s.items.forEach(function(it,i){ITEMS.push({id:s.k+(i+1),sec:s.k,item:it[0],req:it[1]})})});
-var HDR_KEYS=['refNo','date','project','panelUsed','client','coreThickness','contractor','location','installer','gridline'];
+var HDR_KEYS=['refNo','date','project','panelUsed','client','coreThickness','contractor','location','floor','installer','gridline'];
 var CARRY=['project','panelUsed','client','coreThickness','contractor','installer'];
 
 var $=function(s,r){return (r||document).querySelector(s)};
@@ -739,12 +740,12 @@ async function buildPdf(){
   function ensure(h){if(y+h>BOT)newPage()}
   head();
   /* project details */
-  var meta=[['PROJECT',cur.project,'PANEL USED',cur.panelUsed],['CLIENT',cur.client,'CORE THICKNESS',cur.coreThickness],['MAIN CONTRACTOR',cur.contractor,'LOCATION / ELEVATION',cur.location],['INSTALLER',cur.installer,'GRIDLINE',cur.gridline]];
+  var meta=[['PROJECT',cur.project,'PANEL USED',cur.panelUsed],['CLIENT',cur.client,'CORE THICKNESS',cur.coreThickness],['MAIN CONTRACTOR',cur.contractor,'LOCATION / ELEVATION',cur.location],['FLOOR / LEVEL',cur.floor,'INSTALLER',cur.installer],['GRIDLINE',cur.gridline,'','']];
   var half=CW/2;doc.setFontSize(8);
-  meta.forEach(function(m,i){var yy=y+i*7;doc.setDrawColor(40);doc.setLineWidth(.25);doc.rect(M,yy,half-2,7);doc.rect(M+half+2,yy,half-2,7);
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(m[0],M+2,yy+4.6);doc.text(m[2],M+half+4,yy+4.6);
-    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(String(m[1]||''),M+34,yy+4.6,{maxWidth:half-38});doc.text(String(m[3]||''),M+half+40,yy+4.6,{maxWidth:half-44})});
-  y+=28+3;
+  meta.forEach(function(m,i){var yy=y+i*7;doc.setDrawColor(40);doc.setLineWidth(.25);doc.rect(M,yy,half-2,7);if(m[2])doc.rect(M+half+2,yy,half-2,7);
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(m[0],M+2,yy+4.6);if(m[2])doc.text(m[2],M+half+4,yy+4.6);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(String(m[1]||''),M+34,yy+4.6,{maxWidth:half-38});if(m[2])doc.text(String(m[3]||''),M+half+40,yy+4.6,{maxWidth:half-44})});
+  y+=35+3;
   var cn=counts();doc.setFont('helvetica','bold');doc.setFontSize(9);
   doc.text('SUMMARY:  '+cn.pass+' COMPLIANT   '+cn.fail+' NON-COMPLIANT   '+cn.na+' N/A   '+cn.none+' NOT ASSESSED',M,y+3);y+=9;
   /* criteria: max 3 per page, photos shown under each criterion */
